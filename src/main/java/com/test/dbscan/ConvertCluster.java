@@ -2,6 +2,7 @@ package com.test.dbscan;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.tagphi.common.coor.Coordinate;
 import com.tagphi.common.coor.CoordinateConverter;
@@ -81,7 +82,9 @@ public class ConvertCluster {
 	}
 	
 	public void convert_test() {
-		double min=Double.MAX_VALUE;
+		double min=center.distance(crt.getCenter());
+		min=Math.min(min, 1000);
+		//min=Math.min(min, 400);
 		Coordinate test;
 		double dis;
 		/*
@@ -90,7 +93,7 @@ public class ConvertCluster {
 		//wgs84/bd09;
 		test=CoordinateConverter.wgs84_to_bd09(center);
 		dis=test.distance(crt.getCenter());
-		System.out.println(dis+"===wgs/bd");
+		//System.out.println(dis+"===wgs/bd");
 		if(dis<min) {
 			min=dis;
 			info="wgs/bd";
@@ -98,7 +101,7 @@ public class ConvertCluster {
 		//wgs/gcj
 		test=CoordinateConverter.wgs84_to_gcj02(center);
 		dis=test.distance(crt.getCenter());
-		System.out.println(dis+"===wgs/gcj");
+		//System.out.println(dis+"===wgs/gcj");
 		if(dis<min){
 			min=dis;
 			info="wgs/gcj";
@@ -106,7 +109,7 @@ public class ConvertCluster {
 		//bd/wgs
 		test=CoordinateConverter.bd09_to_wgs84(center);
 		dis=test.distance(crt.getCenter());
-		System.out.println(dis+"===bd/wgs");
+		//System.out.println(dis+"===bd/wgs");
 		if(dis<min) {
 			min=dis;
 			info="bd/wgs";
@@ -114,7 +117,7 @@ public class ConvertCluster {
 		//gcj/wgs
 		test=CoordinateConverter.gcj02_to_wgs84(center);
 		dis=test.distance(crt.getCenter());
-		System.out.println(dis+"===gcj/wgs");
+		//System.out.println(dis+"===gcj/wgs");
 		if(dis<min){
 			min=dis;
 			info="gcj/wgs";
@@ -122,7 +125,7 @@ public class ConvertCluster {
 		//bd/gcj
 		test=CoordinateConverter.bd09_to_wgs84(CoordinateConverter.wgs84_to_gcj02(center));
 		dis=test.distance(crt.getCenter());
-		System.out.println(dis+"===bd/gcj");
+		//System.out.println(dis+"===bd/gcj");
 		if(dis<min){
 			min=dis;
 			info="bd/gcj";
@@ -130,12 +133,13 @@ public class ConvertCluster {
 		//gcj/bd
 		test=CoordinateConverter.gcj02_to_wgs84(CoordinateConverter.wgs84_to_bd09(center));
 		dis=test.distance(crt.getCenter());
-		System.out.println(dis+"===gcj/bd");
+		//System.out.println(dis+"===gcj/bd");
 		if(dis<min){
 			min=dis;
 			info="gcj/bd";
 		}
 
+		System.out.println(info+"   "+min);
 	}
 	
 	public void convertpoints() {
@@ -181,6 +185,106 @@ public class ConvertCluster {
 				convertpoints.add(a);
 			}
 		}
+		else if(info.equals("wgs")) {
+			
+		}
+	}
+	
+	/*
+	 * 选择转换方式
+	 */
+	public void convertpoints(String request) {
+		info=request;
+		if(info.equals("wgs/bd")) {
+			for(Point p:points) {
+				Coordinate coor=new Coordinate(p.getLat(),p.getLon());
+				Point a=new Point(CoordinateConverter.wgs84_to_bd09(coor));
+				convertpoints.add(a);
+			}
+		}
+		else if(info.equals("wgs/gcj")) {
+			for(Point p:points) {
+				Coordinate coor=new Coordinate(p.getLat(),p.getLon());
+				Point a=new Point(CoordinateConverter.wgs84_to_gcj02(coor));
+				convertpoints.add(a);
+			}
+		}
+		else if(info.equals("bd/wgs")) {
+			for(Point p:points) {
+				Coordinate coor=new Coordinate(p.getLat(),p.getLon());
+				Point a=new Point(CoordinateConverter.bd09_to_wgs84(coor));
+				convertpoints.add(a);
+			}
+		}
+		else if(info.equals("gcj/wgs")) {
+			for(Point p:points) {
+				Coordinate coor=new Coordinate(p.getLat(),p.getLon());
+				Point a=new Point(CoordinateConverter.gcj02_to_wgs84(coor));
+				convertpoints.add(a);
+			}
+		}
+		else if(info.equals("gcj/bd")) {
+			for(Point p:points) {
+				Coordinate coor=new Coordinate(p.getLat(),p.getLon());
+				Point a=new Point(CoordinateConverter.gcj02_to_wgs84(CoordinateConverter.wgs84_to_bd09(coor)));
+				convertpoints.add(a);
+			}
+		}
+		else if(info.equals("bd/gcj")) {
+			for(Point p:points) {
+				Coordinate coor=new Coordinate(p.getLat(),p.getLon());
+				Point a=new Point(CoordinateConverter.bd09_to_wgs84(CoordinateConverter.wgs84_to_gcj02(coor)));
+				convertpoints.add(a);
+			}
+		}
+	}
+	
+	/*
+	 * 计算类中点的主要资源平台
+	 */
+	public Stat countsrc(){
+		Stat stat=new Stat();
+		
+		for(Point p:points) {
+			if (p.getSrc().equals("b")) {
+				if (stat.getBaidu().containsKey(info)) {
+					stat.getBaidu().put(info, stat.getBaidu().get(info) + 1);
+				} else {
+					stat.getBaidu().put(info, 1);
+				}
+			}
+			else if(p.getSrc().equals("g")) {
+					if (stat.getGdt().containsKey(info)) {
+						stat.getGdt().put(info, stat.getGdt().get(info) + 1);
+					} else {
+						stat.getGdt().put(info, 1);
+					}
+
+			}
+			else if(p.getSrc().equals("t")) {
+					if (stat.getTanx().containsKey(info)) {
+						stat.getTanx().put(info, stat.getTanx().get(info) + 1);
+					} else {
+						stat.getTanx().put(info, 1);
+					}
+
+			}
+			else if(p.getSrc().equals("az")) {
+					if (stat.getAvazn().containsKey(info)) {
+						stat.getAvazn().put(info, stat.getAvazn().get(info) + 1);
+					} else {
+						stat.getAvazn().put(info, 1);
+					}
+
+			}
+		}
+//		String statres="baidu:"+baidu+":"+info;
+//		statres=statres+"\r"+"gdt:"+gdt+":"+info;
+//		statres=statres+"\r"+"tanx:"+tanx+":"+info;
+//		statres=statres+"\r"+"avazn:"+avazn+":"+info;
+//		
+//		return statres;
+		return stat;
 	}
 	
 	public Coordinate get_convertcenter() {

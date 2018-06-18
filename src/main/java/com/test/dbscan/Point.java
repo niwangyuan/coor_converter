@@ -5,6 +5,8 @@ import com.tagphi.common.coor.Coordinate;
 public class Point {
     private double lat;//wgs84
     private double lon;//wgs84
+    
+    private String src;//取点的数据源
 
 
 	private boolean isVisit;
@@ -23,6 +25,16 @@ public class Point {
         this.isVisit = false;
         this.cluster = 0;
         this.isNoised = false;
+    }
+    
+    public Point(double x,double y,String src) {
+    		this.lat = x;
+        this.lon = y;
+        this.isVisit = false;
+        this.cluster = 0;
+        this.isNoised = false;
+        this.src=src;
+    	
     }
     
     public Point(Coordinate c) {
@@ -88,10 +100,19 @@ public class Point {
     public boolean getNoised() {
         return this.isNoised;
     }
-
+    
+	public String getSrc() {
+			return src;
+		}
+	
+		public void setSrc(String src) {
+			this.src = src;
+		}
     @Override
     public String toString() {
         return lat+" "+lon+" "+cluster+" "+(isNoised?1:0);
     }
+
+	
 
 }

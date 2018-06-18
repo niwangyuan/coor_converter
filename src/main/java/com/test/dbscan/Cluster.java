@@ -5,20 +5,19 @@ import java.util.List;
 
 import com.tagphi.common.coor.Coordinate;
 
-public class Cluster {
+import net.sf.json.JSONObject;
 
+public class Cluster {
 	private String name;
 	private String info;
 	private List<Point> points = new ArrayList<Point>();
 	private Coordinate center;
-	private double r;
-	private int size;
-	
-	
+	private double r;//最大半径
+	private int size;//点个数
 	public void operation() {
 		size=points.size();
 		get_center();
-		get_r();
+		get_maxr();
 
 	}
 	
@@ -42,13 +41,13 @@ public class Cluster {
 		la = la * 180 / Math.PI;
 		lo = lo * 180 / Math.PI;
 		center=new Coordinate(la,lo);
-		
 	}
+	
 	
 	/*
 	 * 寻找最大半径
 	 */
-	public void get_r() {
+	public void get_maxr() {
 		double max_r=0;
 		for(Point p:points) {
 			Coordinate c=new Coordinate(p.getLat(),p.getLon());
@@ -56,13 +55,18 @@ public class Cluster {
 			if(dis>max_r) {
 				max_r=dis;
 			}
-			
 		}
 		r=max_r;
-		
-		
 	}
 
+	
+	public String toString() {
+		JSONObject obj=JSONObject.fromObject(this);
+		String str=obj.toString();
+		return str;
+	}
+	
+	
 	public String getInfo() {
 		return info;
 	}

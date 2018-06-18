@@ -9,18 +9,26 @@ public class DBScan {
 	private double radius;
 	private int minPts;
 	private List<Cluster> cluster_list = new ArrayList<Cluster>();
-	private List<Point> ps = new ArrayList<Point>();
+	private List<Point> total_ps = new ArrayList<Point>();
 
+	/*
+	 * entity
+	 * rad 计算半径
+	 * minpts 最小聚类点
+	 */
 	public DBScan(double radius, int minPts) {
 		this.radius = radius;
 		this.minPts = minPts;
 	}
 
+	/*
+	 * clustering
+	 */
 	public void process(List<Point> points) {
 		int size = points.size();
 		int idx = 0;
 		int cluster = 1;
-		ps = points;
+		total_ps = points;
 
 		cluster_list.add(new Cluster(cluster));
 		// System.out.println(String.valueOf(c.size())+"..");
@@ -70,6 +78,10 @@ public class DBScan {
 		}
 	}
 
+	/*
+	 * clustering process
+	 * 
+	 */
 	private List<Point> getAdjacentPoints(Point centerPoint, List<Point> points) {
 		List<Point> adjacentPoints = new ArrayList<Point>();
 		for (Point p : points) {
@@ -83,25 +95,23 @@ public class DBScan {
 		return adjacentPoints;
 	}
 
+	/*
+	 * result out
+	 */
 	public void print() {
 		for (Cluster p : cluster_list) {
-			System.out.println(p.getName() + "=[");
-			for (Point point : p.getPoints()) {
-				System.out.println(point.getLat() + " " + point.getLon());
-
-			}
-			System.out.println("]");
+			System.out.println(p.toString()+"/n");
 		}
-
 	}
 
 
-/*
- * 输出静态结果
- */
-	public String outJSONString_static(double x,int lower) {
-
-		int l = ps.size();
+	/*
+	 * 输出静态结果
+	 */
+	public DBScanVO out_static(double x,int lower) {
+		
+		DBScanVO vo = new DBScanVO();
+		int l = total_ps.size();
 		int[] csize = new int[cluster_list.size()];
 		for (int i = 0; i < cluster_list.size(); i++) {
 			csize[i] = cluster_list.get(i).getPoints().size();
@@ -121,46 +131,37 @@ public class DBScan {
 		}
 		System.out.println("聚类点数阈值："+k);
 
-		DBScanVO vo = new DBScanVO();
-
-		int i = 0;//
+		int i = 0;
 		for (Cluster p : cluster_list) {
-			if (p.getPoints().size() >= k) { // ok
-				
+			if (p.getPoints().size() >= k) {
 				System.out.print("入选的聚类为:" + p.getName()); 
-				System.out.println(" 点的个数为:" +p.getPoints().size());
-
-				int pPointLen = p.getPoints().size();
-				p.setInfo("点的个数为:" + pPointLen);
-				i += pPointLen;
-				vo.getNomo().add(p);
-			} else {
-				// error
-				System.out.print("没有入选的聚类为:" + p.getName()); 
 				System.out.println("   点的个数为:" +p.getPoints().size());
-				vo.getErrorPointList().addAll(p.getPoints());
+				vo.getNormal().add(p);
+				int pPointLen = p.getPoints().size();
+				i += pPointLen;
+			} else {
+				System.out.print("没有入选的聚类为:" + p.getName()+"   点的个数为:" +p.getPoints().size()); 
 			}
 		}
-		for (Point p : ps) {
+		for (Point p : total_ps) {
 			if (p.getNoised()) {
 				vo.getErrorPointList().add(p);
 			}
-
 		}
-		vo.setBaseInfo("聚类选取点总数=" + i + "  ip共获得点数：" + ps.size());
+		vo.setBaseInfo("聚类选取点总数=" + i + "  ip共获得点数：" + total_ps.size());
 
-		List<DBScanVO> voList = new ArrayList<DBScanVO>();
-		voList.add(vo);
-		return   "var data='"+JSON.toJSONString(voList)+"'";
+		return   vo;
 	}
 
-	
+
 	/*
 	 * 输出C段结果
 	 */
-	public String outJSONString_dynamic(double x) {
+	public DBScanVO outJSONString_dynamic(double x) {
+		
+		DBScanVO vo = new DBScanVO();
 
-		int l = ps.size();
+		int l = total_ps.size();
 		int[] csize = new int[cluster_list.size()];
 		for (int i = 0; i < cluster_list.size(); i++) {
 			csize[i] = cluster_list.get(i).getPoints().size();
@@ -171,8 +172,6 @@ public class DBScan {
 			if (csize[i] > max) // 判断最大值
 				max = csize[i];
 		}
-		
-
 		double k;
 		k=Math.max(l*x, 100);
 		k = Math.min(max,k);
@@ -181,19 +180,15 @@ public class DBScan {
 		}
 		System.out.println("聚类点数阈值："+k);
 
-		DBScanVO vo = new DBScanVO();
-
 		int i = 0;
 		for (Cluster p : cluster_list) {
 			if (p.getPoints().size() >= k) { 
-				
 				System.out.print("入选的聚类为:" + p.getName()); 
 				System.out.println(" 点的个数为:" +p.getPoints().size());
-
 				int pPointLen = p.getPoints().size();
 				p.setInfo("点的个数为:" + pPointLen);
 				i += pPointLen;
-				vo.getNomo().add(p);
+				vo.getNormal().add(p);
 			} else {
 				// error
 				System.out.print("没有入选的聚类为:" + p.getName()); 
@@ -201,17 +196,13 @@ public class DBScan {
 				vo.getErrorPointList().addAll(p.getPoints());
 			}
 		}
-		for (Point p : ps) {
+		for (Point p : total_ps) {
 			if (p.getNoised()) {
 				vo.getErrorPointList().add(p);
 			}
-
 		}
-		vo.setBaseInfo("聚类选取点总数=" + i + "  ip共获得点数：" + ps.size());
-
-		List<DBScanVO> voList = new ArrayList<DBScanVO>();
-		voList.add(vo);
-		return   "var data='"+JSON.toJSONString(voList)+"'";
+		vo.setBaseInfo("聚类选取点总数=" + i + "  ip共获得点数：" + total_ps.size());
+		return   vo;
 	}
 
 	public double getRadius() {
@@ -239,10 +230,10 @@ public class DBScan {
 	}
 
 	public List<Point> getPs() {
-		return ps;
+		return total_ps;
 	}
 
 	public void setPs(List<Point> ps) {
-		this.ps = ps;
+		this.total_ps = ps;
 	}
 }
