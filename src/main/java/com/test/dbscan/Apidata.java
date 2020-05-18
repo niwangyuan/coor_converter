@@ -21,11 +21,7 @@ public class Apidata {
 	 * 获取ip类型
 	 */
 	public static String type(String ip) {
-		String api="https://api.rtbasia.com/ipscore/query?key=HIMABID&ip="+ip;
-		String res =HttpRequestSender.sendRequest(api);
-		
-		res=res.split(",")[0];
-		return res;
+
 	}
 
 	/*
@@ -34,7 +30,7 @@ public class Apidata {
 	public static List<Point> get_ip_points(String ip,String d)
 	{
 		List<Point> points=new ArrayList<Point>();
-		String ipapi = "https://ip.rtbasia.com/insideapi/latlngs?key=_rtb_lat_lng&l=1000&ips="+ip+"&d="+d;
+		String ipapi = "";
 	    String res = HttpRequestSender.sendRequest(ipapi);
 	
 		if(res != null){
@@ -61,7 +57,7 @@ public class Apidata {
 	public static List<Point> get_ip_points(String ip,String d,String src)
 	{
 		List<Point> points=new ArrayList<Point>();
-		String ipapi = "https://ip.rtbasia.com/insideapi/latlngs?key=_rtb_lat_lng&l=1000&ips="+ip+"&d="+d+"&src="+src;
+		String ipapi = "";
 	    String res = HttpRequestSender.sendRequest(ipapi);
 	
 		if(res != null){
@@ -90,7 +86,7 @@ public class Apidata {
 		String[] l=ip.split("\\.");
 		//String[] l=StringUtils.split(ip, "\\.");
 		String ipstr=l[0]+"."+l[1]+"."+l[2];
-		String ipapi = "https://ip.rtbasia.com/insideapi/latlngs_c?key=_rtb_lat_lng&l=1000&ipc="+ipstr+"&d="+d;
+		String ipapi = "";
 	    String res = HttpRequestSender.sendRequest(ipapi);	
 		if(res != null){
 			JSONArray arry = JSON.parseArray(res);
@@ -117,7 +113,7 @@ public class Apidata {
 		String[] l=ip.split("\\.");
 		//String[] l=StringUtils.split(ip, "\\.");
 		String ipstr=l[0]+"."+l[1]+"."+l[2];
-		String ipapi = "https://ip.rtbasia.com/insideapi/latlngs_c?key=_rtb_lat_lng&l=1000&ipc="+ipstr+"&d="+d+"&src="+src;
+		String ipapi = "";
 	    String res = HttpRequestSender.sendRequest(ipapi);
 		if(res != null){
 			JSONArray arry = JSON.parseArray(res);
@@ -272,7 +268,7 @@ public class Apidata {
 		
 		double lat=coor.getLatitude();
 		double lon=coor.getLongitude();
-		String request="http://apis.map.qq.com/ws/geocoder/v1/?location="+lat+","+lon+"&key=DEWBZ-BCGCO-HV4WL-SW7QD-QM62F-5PBDW&get_poi=1";
+		String request="";
 		String res = HttpRequestSender.sendRequest(request);
 		if (res != null) {
 			JSONObject obj = JSON.parseObject(res);
