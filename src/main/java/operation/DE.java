@@ -20,9 +20,9 @@ public class DE {
 
 	public static void main(String[] args) throws IOException {
 
-		BufferedReader brstat = new BufferedReader(new FileReader(new File("/Users/wangyuanni/Desktop/shanghaistat.txt")));
-		BufferedReader brip = new BufferedReader(new FileReader(new File("/Users/wangyuanni/Desktop/shanghai.txt")));
-		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("/Users/wangyuanni/Desktop/map.txt")));
+		BufferedReader brstat = new BufferedReader(new FileReader(new File("")));
+		BufferedReader brip = new BufferedReader(new FileReader(new File("")));
+		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("")));
 
 		String txt = "";
 		List<String> rawlist = new ArrayList<String>();
